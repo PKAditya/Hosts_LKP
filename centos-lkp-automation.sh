@@ -15,8 +15,10 @@ check_exit() {
 trap "echo 'Caught SIGINT. Exiting...'; exit 0" SIGINT
 echo " "
 
-read -p "Do you want to create a service file for the lkp running? (yes/y): " servi < /dev/tty
+#read -p "Do you want to create a service file for the lkp running? (yes/y): " servi < /dev/tty
+servi=$1 < /dev/tty
 servi=$(echo "$servi" | tr '[:upper:]' '[:lower:]')
+echo "servi: $servi"
 
 
 
