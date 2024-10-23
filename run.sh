@@ -1,35 +1,31 @@
 #!/bin/bash
-pip install pyfiglet &> /dev/null
-python -m pyfiglet "LKP TESTS"
-export HISTIGNORE='*sudo -S*'
-# Get the distribution name
-distro=$(cat /etc/os-release | grep ^ID= | cut -d'=' -f2)
-user=$(echo $USER)
-echo " "
-# Print the distribution name
-#echo "Distribution: $distro"
-loc=$(pwd)
-echo "Working directory choosen for lkp is: $loc"
-echo " "
-echo "/////////////=== To stop this current process of creating LKP, use CTRL+C ===//////////////"
-echo " "
-sleep 2
-# Check if the distro is Ubuntu
-echo "DISTRO FOUND: $distro"
-echo "CURRENT USER: $user"
-echo " "
-if [ "$distro" == "ubuntu" ]; then
-  if [ "$user" == "amd" ]; then
-	  echo 'Amd$1234!' | sudo -S $loc/ubuntu-lkp-automation.sh
-  else
-	  sudo $loc/ubuntu-lkp-automation.sh
-  fi
+state_file=/var/lib/lkp-files/run_state
+lkp_progress=/var/lib/lkp-files/progress.txt
+if [ -f "$lkp_progress" ]; then
+	echo "A lkp run is in progress, so please wait till it completes."
+	exit 1
 else
-  if [ "$user" == "amd" ]; then
-	  echo 'Amd$1234!' |  sudo -S $loc/centos-lkp-automation.sh
-  else
-	  sudo $loc/centos-lkp-automation.sh
-  fi
+	echo""
 fi
-
-
+if [ -f "$state_file" ]; then
+	echo "Checking the state of run."
+else
+	touch /var/lib/lkp-files/run_state
+	echo "start" > $state_file
+fi
+update_state() {
+	echo $1 > $state_file
+}
+current_state=$(cat $state_file)
+state1=start
+if [[ $current_state == $state1 ]]; then
+	variables=/var/lib/lkp-files/variables
+	base_kernel=$(cat $variables | grep base | awk '{print $2}')
+	echo "base_kernel: $base_kernel"
+	patches_kernel=$(cat $variables | grep patches | awk '{print $2}')
+	echo "patches_kernel: $patches_kernel"
+	test_bed=$
+	update_state "captured-variables"
+else
+	echo "Variables already captured, skipping this step"
+fi

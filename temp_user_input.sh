@@ -4,7 +4,7 @@
 kernel_check(){
     local kernel="$1"
     sudo grubby --info=ALL | grep -iq "$kernel"
-    return $?
+    return $? 
 }
 
 echo "=================================================================================================================="
@@ -14,21 +14,21 @@ echo "Abort the run if this system is Turin system, to avoid booting issues"
 echo " "
 echo "=================================================================================================================="
 echo "--Note--"
-echo "          Providing local version of the kernel image would be enough."
-echo "          Make sure that kernels that are provided by user are installed."
+echo "		Providing local version of the kernel image would be enough."
+echo "		Make sure that kernels that are provided by user are installed."
 echo " "
 while true; do
-        read -p "Enter the image name for base kernel: " base
-        if kernel_check "$base"; then
-                echo " "
-                echo "Base kernel found with input provided: $base"
-                echo " "
-                break
-        else
-                echo "There is no match input provided '$base', provide a valid input, or abort the process"
-        fi
+	read -p "Enter the image name for base kernel: " base
+	if kernel_check "$base"; then
+		echo " "
+		echo "Base kernel found with input provided: $base"
+		echo " "
+		break
+	else
+		echo "There is no match input provided '$base', provide a valid input, or abort the process"
+	fi
 done
-echo " "
+echo " " 
 
 while true; do
         read -p "Enter the image name for the kernel with patches: " patches
@@ -44,7 +44,7 @@ done
 
 echo " "
 echo "======================================"
-echo " "
+echo " " 
 echo "which lkp test-bed you want to run?"
 echo "1) Only host"
 echo "2) Host + vms on it"
@@ -55,13 +55,13 @@ l2=2
 l3=3
 l4=4
 while true; do
-        read -p "Enter your choice?(1/2/3/4): " runchoice
-        if [[ $runchoice == $l1 || $runchoice == $l2 || $runchoice == $l3 || $runchoice == $l4 ]]; then
-                echo "user selected choice number $runchoice"
-                break
-        else
-                echo "Enter a valid choice between 1 & 4"
-        fi
+	read -p "Enter your choice?(1/2/3/4): " runchoice
+	if [[ $runchoice == $l1 || $runchoice == $l2 || $runchoice == $l3 || $runchoice == $l4 ]]; then
+		echo "user selected choice number $runchoice"
+		break
+	else
+		echo "Enter a valid choice between 1 & 4"
+	fi
 done
 
 echo " "
@@ -94,10 +94,10 @@ echo "choice: $choice"
 echo "======================================"
 dir="/var/lib/lkp-files"
 if [ ! -d "$dir" ]; then
-        sudo mkdir /var/lib/lkp-files
-        echo "Created a directory to store all the variables and state file in '$dir'"
+	sudo mkdir /var/lib/lkp-files
+	echo "Created a directory to store all the variables and state file in '$dir'"
 else
-        echo "A directory named 'lkp-files' already exists in '/var/lib/' overwriting the directory."
+	echo "A directory named 'lkp-files' already exists in '/var/lib/' overwriting the directory."
 fi
 touch /var/lib/lkp-files/variables
 > /var/lib/lkp-files/variables
@@ -108,4 +108,3 @@ echo "stress_type: $choice" >> /var/lib/lkp-files/variables
 loc=$(cd ../ && pwd)
 
 #$loc/Hosts_LKP/change_kernel.sh $base
-

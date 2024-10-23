@@ -19,9 +19,9 @@ echo " "
 servi=$1 < /dev/tty
 servi=$(echo "$servi" | tr '[:upper:]' '[:lower:]')
 echo "servi: $servi"
-
-
-
+cd /home/
+mkdir lkp
+loc=/home/lkp/
 
 
 echo " "
@@ -29,15 +29,12 @@ echo "============================================"
 echo "Installing all required dependencies for LKP"
 echo "============================================"
 echo " "
-
 echo "updating the system"
 yum update -y &> /dev/null
 check_exit
 echo "installing git"
 yum install git -y &> /dev/null
 check_exit
-
-loc=$(cd ../ && pwd)
 echo "installing gcc" 
 echo "installing make"
 yum install gcc make -y &> /dev/null
