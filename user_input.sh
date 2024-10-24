@@ -97,7 +97,7 @@ if [ ! -d "$dir" ]; then
         sudo mkdir /var/lib/lkp-files
         echo "Created a directory to store all the variables and state file in '$dir'"
 else
-        echo "A directory named 'lkp-files' already exists in '/var/lib/' overwriting the directory."
+        echo "A directory named 'lkp-files' already exists in '/var/lib/' overwriting files in the directory."
 fi
 touch /var/lib/lkp-files/variables
 > /var/lib/lkp-files/variables

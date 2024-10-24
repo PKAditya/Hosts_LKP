@@ -15,13 +15,17 @@ check_exit() {
 trap "echo 'Caught SIGINT. Exiting...'; exit 0" SIGINT
 echo " "
 
-#read -p "Do you want to create a service file for the lkp running? (yes/y): " servi < /dev/tty
-servi=$1 < /dev/tty
+read -p "Do you want to create a service file for the lkp running? (yes/y): " servi < /dev/tty
 servi=$(echo "$servi" | tr '[:upper:]' '[:lower:]')
-echo "servi: $servi"
-cd /home/
-mkdir lkp
-loc=/home/lkp/
+
+
+loc=/home/lkp
+if [ ! -d "$loc" ]; then
+        mkdir $loc
+else
+        echo ""
+fi
+
 
 
 echo " "
@@ -29,12 +33,14 @@ echo "============================================"
 echo "Installing all required dependencies for LKP"
 echo "============================================"
 echo " "
+
 echo "updating the system"
 yum update -y &> /dev/null
 check_exit
 echo "installing git"
 yum install git -y &> /dev/null
 check_exit
+
 echo "installing gcc" 
 echo "installing make"
 yum install gcc make -y &> /dev/null
@@ -383,7 +389,7 @@ echo "Writing into lkp.sh"
 
 
 echo "#!/bin/bash" >> lkp.sh
-echo "STATE_FILE=\"/var/lib/lkp-files/progress.txt\"" >> lkp.sh
+echo "STATE_FILE=\"$loc/lkp-tests/progress.txt\"" >> lkp.sh
 echo "test_cases=(" >> lkp.sh
 echo "Creating a service file for running gthe script"
 files=$(ls "$loc/lkp-tests/splits/")
@@ -466,57 +472,3 @@ check_exit
 echo "Making the written script executable"
 chmod 777 lkp.sh
 '
-echo "Creating a service to run lkp"
-
-cd /etc/systemd/system/
-touch lkp.service
-truncate -s 0 lkp.service
-check_exit
-echo -e "[Unit]" >> lkp.service
-echo -e "Description=LKP Tests Service" >> lkp.service
-echo -e "After=network.target" >> lkp.service
-echo -e "\n" >> lkp.service
-echo -e "[Service]" >> lkp.service
-echo -e "WorkingDirectory=$loc/lkp-tests" >> lkp.service
-echo -e "ExecStart=/bin/bash $loc/lkp-tests/lkp.sh" >> lkp.service
-echo -e "\n" >> lkp.service 
-echo -e "[Install]" >> lkp.service
-echo -e "WantedBy=multi-user.target" >> lkp.service
-
-if [[ "$servi" == "yes" || "$servi" == "y" ]]; then
-	echo "Reloading daemon"
-	systemctl daemon-reload
-	echo "Enabling lkp service"
-	systemctl enable lkp.service
-	echo "Starting lkp service"
-	systemctl start lkp.service
-	check_exit
-	echo " "
-else
-	echo "Created service file but didnot start the service"
-	echo "--- start it use the below commands ---"
-	echo "  systemctl daemon-reload"
-	echo "  systemctl enable lkp.service"
-	echo "  systemctl start lkp.service"
-	echo " "
-
-echo "===================================="
-echo "------------------------------------"
-echo " "
-echo "-----To find the results run the file /lkp/result/result.sh you will get the sorted results.-----"
-echo " "
-echo "use the below to stop the service or to stop running the lkp test-cases"
-echo "		sudo systemctl stop lkp.service"
-echo "use the below to disable the service"
-echo "		sudo systemctl disable lkp.service"
-echo " "
-
-echo "///////Note: The service created will auto-matically run when the system is started, to disable it use the above command mentioned /////////"
-echo " "
-echo "------------------------------------"
-echo "===================================="
-
-sleep 10
-
-cp $loc/LKP_Automated/result.sh /lkp/result/
-

@@ -13,10 +13,11 @@ else
 	touch /var/lib/lkp-files/run_state
 	echo "start" > $state_file
 fi
+current_state=$(cat $state_file)
 update_state() {
 	echo $1 > $state_file
+	current_state=$1
 }
-current_state=$(cat $state_file)
 state1=start
 if [[ $current_state == $state1 ]]; then
 	variables=/var/lib/lkp-files/variables
@@ -24,8 +25,28 @@ if [[ $current_state == $state1 ]]; then
 	echo "base_kernel: $base_kernel"
 	patches_kernel=$(cat $variables | grep patches | awk '{print $2}')
 	echo "patches_kernel: $patches_kernel"
-	test_bed=$
+	test_bed=$(cat $variables | grep test_bed | awk '{print $2}')
+	echo "test_bed: $test_bed"
+	stress_type=$(cat $variables| grep stress_type | awk '{print $2}')
+	echo "stress_type: $stress_type"
 	update_state "captured-variables"
 else
 	echo "Variables already captured, skipping this step"
+fi
+state2=captured-variables
+if [[ $current_state == $state2 ]]; then
+	loc=$(cd ../ && pwd)
+	$loc/Hosts_LKP/Pre-Requisites/installation.sh
+	update_state "installed-lkp-successfully"
+else
+	continue
+fi
+
+state3=installed-lkp-successfully
+if [[ $current_state == $state3 ]];then
+	$loc/Hosts_LKP/final/run.sh $test_bed $stress_type
+	update_state "run-success"
+	echo ""
+else
+	echo "Install the lkp before running the lkp"
 fi
